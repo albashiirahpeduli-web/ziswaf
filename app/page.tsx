@@ -198,28 +198,63 @@ export default function Home() {
                 </div>
               )}
 
-              <p className="text-gray-600 text-base md:text-lg leading-relaxed">
-                {activeEvent?.description || 'Mari bantu saudara kita yang sedang membutuhkan pertolongan'}
+              <p className="text-gray-600 text-base md:text-lg leading-relaxed text-center md:text-left italic">
+                {activeEvent?.description || '"Barangsiapa yang meringankan satu kesusahan seorang muslim, maka Allah akan menghilangkan satu kesusahan baginya dari kesusahan-kesusahan hari kiamat" (HR. Al-Bukhari).'}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Stats Cards */}
 
-              <div className="bg-green-600 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-105 transition-transform flex flex-col justify-between h-full">
-                <p className="text-green-100 font-medium mb-2 uppercase tracking-wider text-xs md:text-sm">Total Terkumpul</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-lg md:text-xl font-medium opacity-80">Rp</span>
-                  <span className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
-                    {stats.totalAmount.toLocaleString('id-ID')}
-                  </span>
+              <div className="bg-green-600 text-white p-6 rounded-2xl shadow-lg transform hover:scale-[1.02] transition-transform flex flex-col justify-center h-full relative overflow-hidden group gap-4">
+                {/* Decorative Icon */}
+                <div className="absolute top-0 right-0 -mt-6 -mr-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+
+                <div className="relative z-10">
+                  <p className="text-green-100 font-semibold mb-2 uppercase tracking-wider text-xs md:text-sm">Total Terkumpul</p>
+                  <div className="flex flex-wrap items-baseline gap-1">
+                    <span className="text-xl md:text-2xl font-medium opacity-80">Rp</span>
+                    <span className="text-3xl md:text-4xl font-bold tracking-tight break-all">
+                      {stats.totalAmount.toLocaleString('id-ID')}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="bg-yellow-500 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-105 transition-transform flex flex-col justify-between h-full">
-                <p className="text-yellow-100 font-medium mb-2 uppercase tracking-wider text-xs md:text-sm">Jumlah Muhsinin</p>
-                <p className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-                  {stats.totalDonors}
-                </p>
+              <div className="bg-yellow-500 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-105 transition-transform flex flex-col justify-between h-full relative overflow-hidden">
+                {/* Decorative Icon */}
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+
+                <div>
+                  <p className="text-yellow-100 font-medium mb-3 uppercase tracking-wider text-xs md:text-sm">Rekening Donasi</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-bold text-xl md:text-2xl">BSI</span>
+                    <span className="font-bold text-xl md:text-2xl tracking-wide">718 567 4333</span>
+                  </div>
+                  <p className="text-sm md:text-base opacity-90 mb-4">a.n Yayasan Islam Albashiirah</p>
+                </div>
+
+                <div className="mt-auto pt-4 border-t border-yellow-400/30">
+                  <a
+                    href="https://wa.me/6281324796668"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm font-medium hover:underline group"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                    </svg>
+                    Konfirmasi: 081324796668
+                  </a>
+                  <p className="text-xs mt-1 opacity-80">(a.n Sopyan Abu Hudzaifah)</p>
+                </div>
               </div>
             </div>
           </div>
@@ -243,8 +278,14 @@ export default function Home() {
 
         {/* Recent Donations */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden max-w-4xl mx-auto border border-gray-100">
-          <div className="px-4 md:px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-            <h3 className="text-base md:text-lg lg:text-xl font-bold text-gray-800">Riwayat Donasi Terbaru</h3>
+          <div className="px-4 md:px-6 py-4 border-b border-gray-100 bg-gray-50 flex flex-wrap justify-between items-center gap-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-base md:text-lg lg:text-xl font-bold text-gray-800">Riwayat Donasi Terbaru</h3>
+              <div className="bg-yellow-100 text-yellow-800 text-xs md:text-sm font-bold px-3 py-1 rounded-full border border-yellow-200 flex items-center gap-1">
+                <span>{stats.totalDonors}</span>
+                <span className="font-normal">Muhsinin</span>
+              </div>
+            </div>
             <span className="text-[10px] md:text-xs font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded-full">Realtime</span>
           </div>
           <div className="divide-y divide-gray-100">
