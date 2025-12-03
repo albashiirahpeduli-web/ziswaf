@@ -342,11 +342,11 @@ export default function Home() {
                   Prev
                 </button>
                 <span className="text-sm md:text-base text-gray-600 font-medium">
-                  Halaman {currentPage} (Max 50)
+                  Halaman {currentPage} (Max 10)
                 </span>
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(50, p + 1))}
-                  disabled={currentPage === 50 || recentDonations.length < ITEMS_PER_PAGE}
+                  onClick={() => setCurrentPage(p => Math.min(10, p + 1))}
+                  disabled={currentPage === 10 || recentDonations.length < ITEMS_PER_PAGE}
                   className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 hover:bg-gray-50 text-sm md:text-base"
                 >
                   Next
