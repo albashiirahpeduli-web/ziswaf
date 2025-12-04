@@ -215,7 +215,7 @@ export default function Home() {
                 </div>
 
                 <div className="relative z-10">
-                  <p className="text-green-100 font-semibold mb-2 uppercase tracking-wider text-xs md:text-sm">Total Terkumpul</p>
+                  <p className="text-green-100 font-semibold mb-2 uppercase tracking-wider text-xs md:text-sm">Total Donasi</p>
                   <div className="flex flex-wrap items-baseline gap-1">
                     <span className="text-xl md:text-2xl font-medium opacity-80">Rp</span>
                     <span className="text-3xl md:text-4xl font-bold tracking-tight break-all">
@@ -301,7 +301,11 @@ export default function Home() {
                       </svg>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-bold text-gray-800 text-sm md:text-base truncate">Hamba Alloh</p>
+                      <p className="font-bold text-gray-800 text-sm md:text-base truncate">
+                        {(t.donor_name_snapshot && t.donor_name_snapshot.toLowerCase().includes('sdit albashiirah'))
+                          ? t.donor_name_snapshot
+                          : 'Hamba Alloh'}
+                      </p>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[10px] md:text-xs text-gray-500 mt-0.5">
                         <span className="whitespace-nowrap">
                           {new Date(t.transaction_date).toLocaleDateString('id-ID', {
