@@ -14,20 +14,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [role, setRole] = useState<string | null>(null)
 
     useEffect(() => {
-        fetchRole()
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                fetchRole(session.user.id)
+            } else {
+                setRole(null)
+            }
+        })
+
+        return () => subscription.unsubscribe()
     }, [])
 
-    const fetchRole = async () => {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single()
-            if (profile) {
-                setRole(profile.role)
-            }
+    const fetchRole = async (userId: string) => {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', userId)
+            .single()
+        if (profile) {
+            setRole(profile.role)
         }
     }
 
@@ -52,7 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ]
 
     const filteredMenuItems = menuItems.filter(item => {
-        if (item.adminOnly) return role === 'admin'
+        if (item.adminOnly) return role?.toLowerCase() === 'admin'
         return true
     })
 
