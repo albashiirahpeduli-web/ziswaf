@@ -36,6 +36,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
     }
 
+    // Auto-logout logic
+    const [lastActivity, setLastActivity] = useState(Date.now())
+
+    useEffect(() => {
+        // Events to track activity
+        const events = ['mousemove', 'keydown', 'click', 'scroll']
+
+        const resetTimer = () => {
+            setLastActivity(Date.now())
+        }
+
+        // Add listeners
+        events.forEach(event => {
+            window.addEventListener(event, resetTimer)
+        })
+
+        // Check for inactivity every minute
+        const interval = setInterval(() => {
+            const now = Date.now()
+            const timeSinceLastActivity = now - lastActivity
+            const MAX_INACTIVITY = 10 * 60 * 1000 // 10 minutes
+
+            if (timeSinceLastActivity >= MAX_INACTIVITY) {
+                handleLogout()
+            }
+        }, 60 * 1000) // Check every minute
+
+        return () => {
+            events.forEach(event => {
+                window.removeEventListener(event, resetTimer)
+            })
+            clearInterval(interval)
+        }
+    }, [lastActivity])
+
     // If we are on the login page, don't show the layout shell
     if (pathname === '/admin/login') {
         return <>{children}</>
