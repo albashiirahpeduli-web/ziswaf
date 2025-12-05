@@ -98,13 +98,22 @@ export default function Home() {
 
     const start = (page - 1) * ITEMS_PER_PAGE
     const end = start + ITEMS_PER_PAGE - 1
-
-    // If in summary mode (isInitial), just get top 10
-    // If in paginated mode, get page X, but cap at MAX_ITEMS
-
     const effectiveEnd = isInitial ? 9 : Math.min(end, MAX_ITEMS - 1)
 
     if (start >= MAX_ITEMS) return
+
+    // Strategy: 
+    // 1. Fetch "Pinned" donations (SDIT Albashiirah)
+    // 2. Fetch "Recent" donations normally (up to MAX_ITEMS)
+    // 3. Merge, Deduplicate, Sort (Pinned first), then Slice
+
+    const { data: pinned } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('event_id', id)
+      .ilike('donor_name_snapshot', '%SDIT Albashiirah%')
+      .order('transaction_date', { ascending: false })
+      .limit(MAX_ITEMS)
 
     const { data: recent } = await supabase
       .from('transactions')
@@ -112,10 +121,31 @@ export default function Home() {
       .eq('event_id', id)
       .order('transaction_date', { ascending: false })
       .order('created_at', { ascending: false })
-      .range(start, effectiveEnd)
+      .limit(MAX_ITEMS)
 
-    if (recent) {
-      setRecentDonations(recent)
+    if (pinned || recent) {
+      const all = [...(pinned || []), ...(recent || [])]
+
+      // Deduplicate by ID
+      const unique = Array.from(new Map(all.map(item => [item.id, item])).values())
+
+      // Sort: Pinned first, then by Date
+      unique.sort((a, b) => {
+        const isAPinned = a.donor_name_snapshot?.toLowerCase().includes('sdit albashiirah')
+        const isBPinned = b.donor_name_snapshot?.toLowerCase().includes('sdit albashiirah')
+
+        if (isAPinned && !isBPinned) return -1
+        if (!isAPinned && isBPinned) return 1
+
+        // If both pinned or both not pinned, sort by date desc
+        return new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime()
+      })
+
+      // Apply Pagination Slice
+      // Note: effectiveEnd is an index, slice end is exclusive, so +1
+      const paginated = unique.slice(start, effectiveEnd + 1)
+
+      setRecentDonations(paginated)
     }
   }
 
@@ -222,6 +252,9 @@ export default function Home() {
                       {stats.totalAmount.toLocaleString('id-ID')}
                     </span>
                   </div>
+                  <p className="text-green-50 text-xs mt-2 opacity-90 font-medium">
+                    Donasi diterima dari para Muhsinin, Siswa/Siswa(walimurid) dan Guru/Pegawai SDIT Albashiirah
+                  </p>
                 </div>
               </div>
               <div className="bg-yellow-500 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-105 transition-transform flex flex-col justify-between h-full relative overflow-hidden">
