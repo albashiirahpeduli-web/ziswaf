@@ -15,6 +15,15 @@ type Event = {
 type DonationStats = {
   totalAmount: number
   totalDonors: number
+  totalDisbursements?: number
+}
+
+type Disbursement = {
+  id: string
+  disbursement_date: string
+  recipient: string
+  description: string
+  amount: number
 }
 
 type Transaction = {
@@ -29,6 +38,7 @@ export default function Home() {
   const [activeEvent, setActiveEvent] = useState<Event | null>(null)
   const [stats, setStats] = useState<DonationStats>({ totalAmount: 0, totalDonors: 0 })
   const [recentDonations, setRecentDonations] = useState<Transaction[]>([])
+  const [recentDisbursements, setRecentDisbursements] = useState<Disbursement[]>([])
   const [loading, setLoading] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [showBannerModal, setShowBannerModal] = useState(false)
@@ -79,7 +89,21 @@ export default function Home() {
         if (transactions) {
           const totalAmount = transactions.reduce((sum, t) => sum + (t.amount || 0), 0)
           const totalDonors = transactions.length
-          setStats({ totalAmount, totalDonors })
+
+          // Get Disbursements
+          const { data: disbursements } = await supabase
+            .from('disbursements')
+            .select('*')
+            .eq('event_id', event.id)
+            .order('disbursement_date', { ascending: false })
+
+          const totalDisbursements = disbursements?.reduce((sum, d) => sum + (d.amount || 0), 0) || 0
+
+          if (disbursements) {
+            setRecentDisbursements(disbursements)
+          }
+
+          setStats({ totalAmount, totalDonors, totalDisbursements })
         }
 
         // 3. Get Initial Recent Donations (Summary)
@@ -236,6 +260,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Stats Cards */}
 
+              {/* Card 1: Total Donasi */}
               <div className="bg-green-600 text-white p-6 rounded-2xl shadow-lg transform hover:scale-[1.02] transition-transform flex flex-col justify-center h-full relative overflow-hidden group gap-4">
                 {/* Decorative Icon */}
                 <div className="absolute top-0 right-0 -mt-6 -mr-6 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -253,11 +278,13 @@ export default function Home() {
                     </span>
                   </div>
                   <p className="text-green-50 text-xs mt-2 opacity-90 font-medium">
-                    Donasi diterima dari para Muhsinin, Siswa/Siswa(walimurid) dan Guru/Pegawai SDIT Albashiirah
+                    Donasi diterima dari para Muhsinin, Siswa/Siswi(walimurid) dan Guru/Pegawai SDIT Albashiirah
                   </p>
                 </div>
               </div>
-              <div className="bg-yellow-500 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-105 transition-transform flex flex-col justify-between h-full relative overflow-hidden">
+
+              {/* Card 2: Rekening Donasi (Moved Up) */}
+              <div className="bg-yellow-500 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-[1.02] transition-transform flex flex-col justify-between h-full relative overflow-hidden">
                 {/* Decorative Icon */}
                 <div className="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -289,6 +316,30 @@ export default function Home() {
                   <p className="text-xs mt-1 opacity-80">(a.n Sopyan Abu Hudzaifah)</p>
                 </div>
               </div>
+
+              {/* Card 3: Penyaluran Card (Moved Down to Full Width Row) */}
+              {(stats.totalDisbursements || 0) > 0 && (
+                <div className="bg-red-500 text-white p-5 md:p-6 rounded-2xl shadow-lg transform hover:scale-[1.02] transition-transform flex flex-col justify-center relative overflow-hidden group col-span-1 sm:col-span-2">
+                  <div className="absolute top-0 right-0 -mt-6 -mr-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-red-100 font-semibold mb-2 uppercase tracking-wider text-xs md:text-sm">Total Penyaluran</p>
+                    <div className="flex flex-wrap items-baseline gap-1">
+                      <span className="text-xl md:text-2xl font-medium opacity-80">Rp</span>
+                      <span className="text-3xl md:text-4xl font-bold tracking-tight break-all">
+                        {stats.totalDisbursements?.toLocaleString('id-ID') || 0}
+                      </span>
+                    </div>
+                    <p className="text-red-50 text-xs mt-2 opacity-90 font-medium">
+                      Dana yang telah disalurkan untuk program ini
+                    </p>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
 
@@ -308,6 +359,46 @@ export default function Home() {
           </div>
 
         </div>
+
+        {/* Disbursement History Section (NEW) */}
+        {recentDisbursements.length > 0 && (
+          <div className="bg-white rounded-xl shadow-md overflow-hidden max-w-4xl mx-auto border border-gray-100 mb-8">
+            <div className="px-4 md:px-6 py-4 border-b border-gray-100 bg-red-50 flex flex-wrap justify-between items-center gap-3">
+              <div className="flex items-center gap-3">
+                <h3 className="text-base md:text-lg lg:text-xl font-bold text-gray-800">Laporan Penyaluran Donasi</h3>
+              </div>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {recentDisbursements.map((d) => (
+                <div key={d.id} className="p-4 md:p-6 flex items-start sm:items-center justify-between hover:bg-red-50 transition-colors group gap-3">
+                  <div className="flex items-start sm:items-center gap-3 md:gap-4 flex-1 min-w-0">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-100 flex-shrink-0 flex items-center justify-center text-red-600 group-hover:bg-red-200 transition-colors mt-1 sm:mt-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2l-1 2H8l-1-2H5V5z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-gray-800 text-sm md:text-base truncate">
+                        {d.recipient}
+                      </p>
+                      <p className="text-xs text-gray-500 italic truncate">{d.description}</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-[10px] md:text-xs text-gray-500 mt-0.5">
+                        <span className="whitespace-nowrap">
+                          {new Date(d.disbursement_date).toLocaleDateString('id-ID', {
+                            day: 'numeric', month: 'long', year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="font-bold text-red-700 text-sm md:text-lg lg:text-xl whitespace-nowrap flex-shrink-0 mt-1 sm:mt-0">
+                    Rp {d.amount.toLocaleString('id-ID')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Recent Donations */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden max-w-4xl mx-auto border border-gray-100">
